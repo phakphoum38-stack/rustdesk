@@ -19,3 +19,30 @@ jobs:
         run: cargo build --verbose
       - name: Test
         run: cargo test --verbose
+
+  ios-build:
+    name: iOS Build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CocoaPods (if needed)
+        run: |
+          if command -v pod >/dev/null 2>&1; then echo "pod already installed"; else sudo gem install cocoapods --no-document; fi
+      - name: Install dependencies
+        run: |
+          if [ -f Podfile ]; then pod install; fi
+      - name: Build iOS app (simulator)
+        run: |
+          set -e
+          if ls *.xcworkspace 1> /dev/null 2>&1; then
+            WORKSPACE=$(ls *.xcworkspace | head -n1)
+            echo "Found workspace: $WORKSPACE"
+            xcodebuild -workspace "$WORKSPACE" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14' build
+          elif ls *.xcodeproj 1> /dev/null 2>&1; then
+            PROJECT=$(ls *.xcodeproj | head -n1)
+            echo "Found project: $PROJECT"
+            xcodebuild -project "$PROJECT" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14' build
+          else
+            echo "No Xcode project or workspace found — skipping iOS build"
+            exit 0
+          fi
