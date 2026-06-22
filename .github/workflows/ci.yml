@@ -29,32 +29,18 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.44.3'
-      - name: Install CocoaPods (if needed)
+      - name: Install CocoaPods
         run: |
-          if command -v pod >/dev/null 2>&1; then echo "pod already installed"; else sudo gem install cocoapods --no-document; fi
+          if command -v pod >/dev/null 2>&1; then
+            echo "pod already installed"
+          else
+            sudo gem install cocoapods --no-document
+          fi
       - name: Prepare Flutter iOS project
         run: |
           cd flutter_app
           flutter pub get
-          cd ios
-          if [ -f Podfile ]; then
-            pod install
-          else
-            echo "No Podfile found, skipping CocoaPods install"
-          fi
-      - name: Build iOS app (simulator)
+      - name: Build Flutter iOS app
         run: |
-          cd flutter_app/ios
-          set -e
-          if ls *.xcworkspace 1> /dev/null 2>&1; then
-            WORKSPACE=$(ls *.xcworkspace | head -n1)
-            echo "Found workspace: $WORKSPACE"
-            xcodebuild -workspace "$WORKSPACE" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13' build
-          elif ls *.xcodeproj 1> /dev/null 2>&1; then
-            PROJECT=$(ls *.xcodeproj | head -n1)
-            echo "Found project: $PROJECT"
-            xcodebuild -project "$PROJECT" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13' build
-          else
-            echo "No Xcode project or workspace found — skipping iOS build"
-            exit 0
-          fi
+          cd flutter_app
+          flutter build ios --simulator --no-codesign
