@@ -9,26 +9,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           override: true
+
       - name: Build
         run: cargo build --verbose
+
       - name: Test
         run: cargo test --verbose
 
   ios-build:
-    name: iOS Build
+    name: iOS Build + IPA
     runs-on: macos-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.44.3'
+
       - name: Install CocoaPods
         run: |
           if command -v pod >/dev/null 2>&1; then
@@ -36,11 +42,36 @@ jobs:
           else
             sudo gem install cocoapods --no-document
           fi
+
       - name: Prepare Flutter iOS project
         run: |
           cd flutter_app
           flutter pub get
+
       - name: Build Flutter iOS app
         run: |
           cd flutter_app
-          flutter build ios --simulator --no-codesign
+          flutter build ios --release --no-codesign
+
+      - name: Create IPA
+        run: |
+          cd flutter_app
+
+          APP_PATH=$(find build/ios/iphoneos -maxdepth 1 -name "*.app" | head -n 1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app found!"
+            exit 1
+          fi
+
+          mkdir -p build/ios/ipa/Payload
+          cp -R "$APP_PATH" build/ios/ipa/Payload/
+
+          cd build/ios/ipa
+          zip -r app.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: flutter_app/build/ios/ipa/app.ipa
