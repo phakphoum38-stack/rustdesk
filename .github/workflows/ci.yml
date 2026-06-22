@@ -25,6 +25,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.3'
       - name: Install CocoaPods (if needed)
         run: |
           if command -v pod >/dev/null 2>&1; then echo "pod already installed"; else sudo gem install cocoapods --no-document; fi
