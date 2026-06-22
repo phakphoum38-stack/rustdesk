@@ -30,9 +30,11 @@ jobs:
           if command -v pod >/dev/null 2>&1; then echo "pod already installed"; else sudo gem install cocoapods --no-document; fi
       - name: Install dependencies
         run: |
-          if [ -f Podfile ]; then pod install; fi
+          cd flutter_app/ios
+          pod install
       - name: Build iOS app (simulator)
         run: |
+          cd flutter_app/ios
           set -e
           if ls *.xcworkspace 1> /dev/null 2>&1; then
             WORKSPACE=$(ls *.xcworkspace | head -n1)
