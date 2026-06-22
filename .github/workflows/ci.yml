@@ -28,10 +28,16 @@ jobs:
       - name: Install CocoaPods (if needed)
         run: |
           if command -v pod >/dev/null 2>&1; then echo "pod already installed"; else sudo gem install cocoapods --no-document; fi
-      - name: Install dependencies
+      - name: Prepare Flutter iOS project
         run: |
-          cd flutter_app/ios
-          pod install
+          cd flutter_app
+          flutter pub get
+          cd ios
+          if [ -f Podfile ]; then
+            pod install
+          else
+            echo "No Podfile found, skipping CocoaPods install"
+          fi
       - name: Build iOS app (simulator)
         run: |
           cd flutter_app/ios
