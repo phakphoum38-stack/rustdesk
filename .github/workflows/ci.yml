@@ -37,11 +37,11 @@ jobs:
           if ls *.xcworkspace 1> /dev/null 2>&1; then
             WORKSPACE=$(ls *.xcworkspace | head -n1)
             echo "Found workspace: $WORKSPACE"
-            xcodebuild -workspace "$WORKSPACE" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14' build
+            xcodebuild -workspace "$WORKSPACE" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13' build
           elif ls *.xcodeproj 1> /dev/null 2>&1; then
             PROJECT=$(ls *.xcodeproj | head -n1)
             echo "Found project: $PROJECT"
-            xcodebuild -project "$PROJECT" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14' build
+            xcodebuild -project "$PROJECT" -scheme "Runner" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13' build
           else
             echo "No Xcode project or workspace found — skipping iOS build"
             exit 0
